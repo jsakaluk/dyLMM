@@ -1,0 +1,34 @@
+Package: dyLMM
+Title: Dyadic Linear Mixed Models
+Version: 0.0.0.9001
+Author: John Sakaluk <jksakaluk@gmail.com>
+Maintainer: John Sakaluk <jksakaluk@gmail.com>
+Description: Fitting dyadic linear mixed models (LMM/MLM/HLM) including ICC models
+    and actor-partner interdependence models (APIM) for indistinguishable and
+    distinguishable dyads. Interoperates with dySEM and dySim.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+URL: https://github.com/jsakaluk/dyLMM/
+BugReports: https://github.com/jsakaluk/dyLMM/issues
+Imports: 
+    broom.mixed,
+    dplyr,
+    gt,
+    lme4,
+    magrittr,
+    rlang,
+    tibble
+Suggests: 
+    dySEM,
+    knitr,
+    lmerTest,
+    performance,
+    psych,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Depends: 
+    R (>= 4.1)
+Config/testthat/edition: 3
