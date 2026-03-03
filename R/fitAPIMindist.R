@@ -1,7 +1,8 @@
 #' Fit an Indistinguishable Actor-Partner Interdependence Model
 #'
 #' Fits an APIM with actor and partner effects constrained equal across dyad
-#' members (exchangeable partners). Formula: `y ~ x + x_partner + (1 | dyad_id)`.
+#' members (exchangeable partners). Uses [nlme::gls()] with compound symmetry;
+#' equivalent to `y ~ x + x_partner` with correlated errors within dyads.
 #'
 #' @param data Data frame in long format (two rows per dyad).
 #' @param y Character. Name of the outcome column.
@@ -9,11 +10,11 @@
 #' @param dyad_id Character. Name of the dyad identifier column. Default `"dyad_id"`.
 #' @param x_partner Character. Name of the partner's predictor column. If `NULL`,
 #'   inferred from `x` by appending `_partner` (e.g., `x` -> `x_partner`).
-#' @param use_lmerTest Logical. If `TRUE` (default), use `lmerTest::lmer()` when
-#'   the lmerTest package is available to obtain Satterthwaite p-values.
-#' @param ... Further arguments passed to [lme4::lmer()].
+#' @param ... Further arguments passed to [nlme::gls()].
 #'
-#' @return A fitted \code{lmerMod} object from \code{lme4::lmer}.
+#' @return A fitted \code{gls} object from \code{nlme::gls}.
+#'
+#' @seealso \url{https://randilgarcia.github.io/week-dyad-workshop/Indistinguishable.html}
 #'
 #' @export
 #'
@@ -33,7 +34,6 @@ fitAPIMindist <- function(data,
                           x,
                           dyad_id = "dyad_id",
                           x_partner = NULL,
-                          use_lmerTest = TRUE,
                           ...) {
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame.")
@@ -47,8 +47,12 @@ fitAPIMindist <- function(data,
     stop("Required columns not found in `data`: ", paste(miss, collapse = ", "))
   }
 
-  f <- stats::as.formula(paste0(
-    y, " ~ ", x, " + ", x_partner, " + (1 | ", dyad_id, ")"
-  ))
-  .lmer_fit(formula = f, data = data, use_lmerTest = use_lmerTest, ...)
+  f <- stats::as.formula(paste0(y, " ~ ", x, " + ", x_partner))
+  nlme::gls(
+    model = f,
+    data = data,
+    correlation = nlme::corCompSymm(form = stats::as.formula(paste0("~ 1 | ", dyad_id))),
+    na.action = na.omit,
+    ...
+  )
 }

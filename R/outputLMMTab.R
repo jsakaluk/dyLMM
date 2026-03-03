@@ -1,13 +1,11 @@
 #' Export Parameter Table from Fitted LMM
 #'
 #' Creates a table of fixed-effects parameter estimates and statistical tests
-#' from a fitted lme4/lmerTest model. Returns a tibble or a `gt` object for
-#' publication. P-values use Satterthwaite degrees of freedom when the model
-#' was fit with `lmerTest::lmer()` (via \code{use_lmerTest = TRUE} in the
-#' fitting functions); otherwise a z-approximation is used.
+#' from a fitted nlme::gls model. Returns a tibble or a `gt` object for
+#' publication. P-values are computed natively by gls (t-tests).
 #'
-#' @param fit A fitted \code{lmerMod} object from \code{lme4::lmer} or
-#'   \code{lmerTest::lmer}.
+#' @param fit A fitted \code{gls} object from \code{\link{fitAPIMindist}},
+#'   \code{\link{fitAPIMdist}}, or \code{\link{fitICC}}.
 #' @param gtTab Logical. If `TRUE`, return a [gt::gt()] object. If `FALSE`
 #'   (default), return a [tibble::tibble()].
 #' @param writeTo Optional. Directory path to save the table as `.rtf`. Requires
@@ -39,8 +37,8 @@ outputLMMTab <- function(fit,
                         gtTab = FALSE,
                         writeTo = NULL,
                         fileName = NULL) {
-  if (!inherits(fit, "lmerMod")) {
-    stop("`fit` must be a fitted lmerMod object (from lme4::lmer or lmerTest::lmer).")
+  if (!inherits(fit, "gls")) {
+    stop("`fit` must be a fitted gls object (from nlme::gls).")
   }
   if (!is.logical(gtTab) || length(gtTab) != 1) {
     stop("`gtTab` must be a single logical value.")
@@ -58,44 +56,25 @@ outputLMMTab <- function(fit,
     }
   }
 
-  if (requireNamespace("broom.mixed", quietly = TRUE)) {
-    tab <- broom.mixed::tidy(fit, effects = "fixed")
-    names(tab) <- gsub("^term$", "Parameter", names(tab))
-    names(tab) <- gsub("^estimate$", "Estimate", names(tab))
-    names(tab) <- gsub("^std.error$", "SE", names(tab))
-    names(tab) <- gsub("^statistic$", "Statistic", names(tab))
-    names(tab) <- gsub("^p.value$", "p", names(tab))
-    if (!"p" %in% names(tab) && "Statistic" %in% names(tab)) {
-      tab[["p"]] <- 2 * stats::pnorm(-abs(tab[["Statistic"]]))
-    }
-  } else {
-    sm <- summary(fit)$coefficients
-    has_p <- "Pr(>|t|)" %in% colnames(sm)
-    tab <- tibble::tibble(
-      Parameter = rownames(sm),
-      Estimate = sm[, "Estimate"],
-      SE = sm[, "Std. Error"],
-      Statistic = sm[, "t value"],
-      p = if (has_p) sm[, "Pr(>|t|)"] else 2 * stats::pnorm(-abs(sm[, "t value"]))
-    )
-  }
-  tab <- tab[, intersect(
-    c("Parameter", "Estimate", "SE", "Statistic", "p"),
-    names(tab)
-  ), drop = FALSE]
+  sm <- summary(fit)$tTable
+  tab <- tibble::tibble(
+    Parameter = rownames(sm),
+    Estimate = sm[, "Value"],
+    SE = sm[, "Std.Error"],
+    Statistic = sm[, "t-value"],
+    p = sm[, "p-value"]
+  )
 
   if (!gtTab) {
     return(tibble::as_tibble(tab))
   }
 
-  num_cols <- intersect(c("Estimate", "SE", "Statistic", "p"), names(tab))
+  num_cols <- c("Estimate", "SE", "Statistic", "p")
   gt_tab <- tab %>%
     gt::gt()
-  if (length(num_cols) > 0) {
-    gt_tab <- gt_tab %>%
-      gt::fmt_number(columns = num_cols, decimals = 3) %>%
-      gt::sub_missing(columns = num_cols, missing_text = "")
-  }
+  gt_tab <- gt_tab %>%
+    gt::fmt_number(columns = num_cols, decimals = 3) %>%
+    gt::sub_missing(columns = num_cols, missing_text = "")
 
   if (!is.null(writeTo)) {
     fname <- if (is.null(fileName)) "dyLMM_table" else fileName

@@ -14,6 +14,6 @@ test_that("getICC returns numeric ICC", {
   expect_true(icc["ICC"] >= 0 && icc["ICC"] <= 1)
 })
 
-test_that("getICC rejects non-lmerMod", {
-  expect_error(getICC(list(a = 1)), "lmerMod")
+test_that("getICC rejects non-gls", {
+  expect_error(getICC(list(a = 1)), "gls")
 })

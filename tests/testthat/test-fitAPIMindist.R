@@ -1,4 +1,4 @@
-test_that("fitAPIMindist produces lmerMod", {
+test_that("fitAPIMindist produces gls", {
   skip_if_not_installed("dySEM")
   dvn <- dySEM::scrapeVarCross(
     dat = dySEM::commitmentQ, x_order = "spi", x_stem = "sat.g",
@@ -9,5 +9,5 @@ test_that("fitAPIMindist produces lmerMod", {
   dat_comp <- build_composites(dat = dySEM::commitmentQ, dvn = dvn)
   dat_long <- wide_to_long(dat_comp)
   fit <- fitAPIMindist(data = dat_long, y = "y", x = "x")
-  expect_s4_class(fit, "lmerMod")
+  expect_s3_class(fit, "gls")
 })

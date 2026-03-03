@@ -7,8 +7,8 @@
 outputLMMTab(fit, gtTab = FALSE, writeTo = NULL, fileName = NULL)
 }
 \arguments{
-\item{fit}{A fitted \code{lmerMod} object from \code{lme4::lmer} or
-\code{lmerTest::lmer}.}
+\item{fit}{A fitted \code{gls} object from \code{\link{fitAPIMindist}},
+\code{\link{fitAPIMdist}}, or \code{\link{fitICC}}.}
 
 \item{gtTab}{Logical. If \code{TRUE}, return a \code{\link[gt:gt]{gt::gt()}} object. If \code{FALSE}
 (default), return a \code{\link[tibble:tibble]{tibble::tibble()}}.}
@@ -24,10 +24,8 @@ columns: Parameter, Estimate, SE, Statistic (t), p-value.
 }
 \description{
 Creates a table of fixed-effects parameter estimates and statistical tests
-from a fitted lme4/lmerTest model. Returns a tibble or a \code{gt} object for
-publication. P-values use Satterthwaite degrees of freedom when the model
-was fit with \code{lmerTest::lmer()} (via \code{use_lmerTest = TRUE} in the
-fitting functions); otherwise a z-approximation is used.
+from a fitted nlme::gls model. Returns a tibble or a \code{gt} object for
+publication. P-values are computed natively by gls (t-tests).
 }
 \details{
 When \code{gtTab = TRUE} and \code{writeTo} is specified, the table is saved

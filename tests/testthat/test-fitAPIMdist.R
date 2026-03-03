@@ -1,4 +1,4 @@
-test_that("fitAPIMdist produces lmerMod with factor distinguish", {
+test_that("fitAPIMdist produces gls with factor distinguish", {
   skip_if_not_installed("dySEM")
   dvn <- dySEM::scrapeVarCross(
     dat = dySEM::commitmentM, x_order = "sip", x_stem = "sat.g",
@@ -11,5 +11,5 @@ test_that("fitAPIMdist produces lmerMod with factor distinguish", {
   fit <- fitAPIMdist(
     data = dat_long, y = "y", x = "x", distinguish = "distinguish"
   )
-  expect_s4_class(fit, "lmerMod")
+  expect_s3_class(fit, "gls")
 })

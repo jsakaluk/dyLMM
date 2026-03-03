@@ -4,7 +4,7 @@
 \alias{fitICC}
 \title{Fit an Intraclass Correlation (ICC) Model}
 \usage{
-fitICC(data, y, dyad_id = "dyad_id", use_lmerTest = TRUE, ...)
+fitICC(data, y, dyad_id = "dyad_id", ...)
 }
 \arguments{
 \item{data}{Data frame in long format (two rows per dyad).}
@@ -13,18 +13,15 @@ fitICC(data, y, dyad_id = "dyad_id", use_lmerTest = TRUE, ...)
 
 \item{dyad_id}{Character. Name of the dyad identifier column. Default \code{"dyad_id"}.}
 
-\item{use_lmerTest}{Logical. If \code{TRUE} (default), use \code{lmerTest::lmer()} when
-the lmerTest package is available to obtain Satterthwaite p-values. If
-\code{FALSE} or lmerTest is not installed, uses \code{\link[lme4]{lmer}}.}
-
-\item{...}{Further arguments passed to \code{\link[lme4:lmer]{lme4::lmer()}}.}
+\item{...}{Further arguments passed to \code{\link[nlme:gls]{nlme::gls()}}.}
 }
 \value{
-A fitted \code{lmerMod} object from \code{lme4::lmer}.
+A fitted \code{gls} object from \code{nlme::gls}.
 }
 \description{
-Fits a one-way random effects model to estimate the intraclass correlation
-(ICC) for dyadic data. Use \code{\link[=getICC]{getICC()}} to extract the ICC from the fitted model.
+Fits a model with compound symmetry to estimate the intraclass correlation
+(ICC) for dyadic data. Uses \code{\link[nlme:gls]{nlme::gls()}}. Use \code{\link[=getICC]{getICC()}} or \code{\link[=getRho]{getRho()}} to
+extract the ICC (rho) from the fitted model.
 }
 \examples{
 \dontrun{

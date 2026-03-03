@@ -11,7 +11,6 @@ fitAPIMdist(
   distinguish,
   dyad_id = "dyad_id",
   x_partner = NULL,
-  use_lmerTest = TRUE,
   ...
 )
 }
@@ -23,25 +22,22 @@ fitAPIMdist(
 \item{x}{Character. Name of the actor's predictor column.}
 
 \item{distinguish}{Character. Name of the column distinguishing partners
-(e.g., gender). Can be factor or numeric (effect-coded, dummy-coded).}
+(e.g., gender). Should be a factor for the two-intercept approach.}
 
 \item{dyad_id}{Character. Name of the dyad identifier column. Default \code{"dyad_id"}.}
 
 \item{x_partner}{Character. Name of the partner's predictor column. If \code{NULL},
 inferred from \code{x} by appending \verb{_partner}.}
 
-\item{use_lmerTest}{Logical. If \code{TRUE} (default), use \code{lmerTest::lmer()} when
-the lmerTest package is available to obtain Satterthwaite p-values.}
-
-\item{...}{Further arguments passed to \code{\link[lme4:lmer]{lme4::lmer()}}.}
+\item{...}{Further arguments passed to \code{\link[nlme:gls]{nlme::gls()}}.}
 }
 \value{
-A fitted \code{lmerMod} object from \code{lme4::lmer}.
+A fitted \code{gls} object from \code{nlme::gls}.
 }
 \description{
 Fits an APIM with separate actor and partner effects by partner type
-(e.g., gender). Formula: \code{y ~ (x + x_partner) * distinguish + (1 | dyad_id)}.
-Supports both factor and numeric distinguish variables (e.g., effect-coded).
+(e.g., gender) using the two-intercept approach. Uses \code{\link[nlme:gls]{nlme::gls()}} with
+compound symmetry and group-specific residual variances.
 }
 \examples{
 \dontrun{
@@ -54,4 +50,7 @@ dat_comp <- build_composites(dat = commitmentM, dvn = dvn)
 dat_long <- wide_to_long(dat_comp, partner_labels = c("f", "m"))
 fit <- fitAPIMdist(data = dat_long, y = "y", x = "x", distinguish = "distinguish")
 }
+}
+\seealso{
+\url{https://randilgarcia.github.io/week-dyad-workshop/Distinguishable.html}
 }

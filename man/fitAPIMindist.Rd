@@ -4,15 +4,7 @@
 \alias{fitAPIMindist}
 \title{Fit an Indistinguishable Actor-Partner Interdependence Model}
 \usage{
-fitAPIMindist(
-  data,
-  y,
-  x,
-  dyad_id = "dyad_id",
-  x_partner = NULL,
-  use_lmerTest = TRUE,
-  ...
-)
+fitAPIMindist(data, y, x, dyad_id = "dyad_id", x_partner = NULL, ...)
 }
 \arguments{
 \item{data}{Data frame in long format (two rows per dyad).}
@@ -26,17 +18,15 @@ fitAPIMindist(
 \item{x_partner}{Character. Name of the partner's predictor column. If \code{NULL},
 inferred from \code{x} by appending \verb{_partner} (e.g., \code{x} -> \code{x_partner}).}
 
-\item{use_lmerTest}{Logical. If \code{TRUE} (default), use \code{lmerTest::lmer()} when
-the lmerTest package is available to obtain Satterthwaite p-values.}
-
-\item{...}{Further arguments passed to \code{\link[lme4:lmer]{lme4::lmer()}}.}
+\item{...}{Further arguments passed to \code{\link[nlme:gls]{nlme::gls()}}.}
 }
 \value{
-A fitted \code{lmerMod} object from \code{lme4::lmer}.
+A fitted \code{gls} object from \code{nlme::gls}.
 }
 \description{
 Fits an APIM with actor and partner effects constrained equal across dyad
-members (exchangeable partners). Formula: \code{y ~ x + x_partner + (1 | dyad_id)}.
+members (exchangeable partners). Uses \code{\link[nlme:gls]{nlme::gls()}} with compound symmetry;
+equivalent to \code{y ~ x + x_partner} with correlated errors within dyads.
 }
 \examples{
 \dontrun{
@@ -49,4 +39,7 @@ dat_comp <- build_composites(dat = commitmentQ, dvn = dvn)
 dat_long <- wide_to_long(dat_comp)
 fit <- fitAPIMindist(data = dat_long, y = "y", x = "x")
 }
+}
+\seealso{
+\url{https://randilgarcia.github.io/week-dyad-workshop/Indistinguishable.html}
 }

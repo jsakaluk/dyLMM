@@ -1,0 +1,7 @@
+^\.Rproj\.user$
+^\.Rhistory$
+^\.Rdata$
+^\.git$
+^\.\.Rcheck$
+^vignettes/articles$
+^.*\.Rproj$

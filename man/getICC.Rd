@@ -7,21 +7,18 @@
 getICC(fit, ci = NULL)
 }
 \arguments{
-\item{fit}{A fitted \code{lmerMod} object from \code{\link{fitICC}} or equivalent
-(random intercept only: \code{y ~ 1 + (1 | dyad_id)}).}
+\item{fit}{A fitted \code{gls} object from \code{\link{fitICC}}.}
 
 \item{ci}{Numeric or \code{NULL}. If numeric (e.g., 0.95), compute a confidence
-interval using \code{\link[performance:icc]{performance::icc()}}. Requires the \code{performance} package.
-If \code{NULL}, no CI is computed.}
+interval using \code{\link[nlme:intervals]{nlme::intervals()}}. If \code{NULL}, no CI is computed.}
 }
 \value{
 A numeric vector with \code{ICC} and optionally \code{CI_low} and \code{CI_high}.
 }
 \description{
-Computes the ICC from a fitted one-way random effects model (e.g., from
-\code{\link[=fitICC]{fitICC()}}). Uses variance components from \code{\link[lme4:VarCorr]{lme4::VarCorr()}} when
-\code{performance} is not available; otherwise uses \code{\link[performance:icc]{performance::icc()}} for
-optional confidence intervals.
+Computes the ICC from a fitted \code{\link[=fitICC]{fitICC()}} model. For \code{gls(y ~ 1,
+correlation = corCompSymm(...))}, the compound-symmetry correlation (rho)
+equals the ICC.
 }
 \examples{
 \dontrun{

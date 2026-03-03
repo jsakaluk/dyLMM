@@ -1,22 +1,22 @@
 #' Fit a Distinguishable Actor-Partner Interdependence Model
 #'
 #' Fits an APIM with separate actor and partner effects by partner type
-#' (e.g., gender). Formula: `y ~ (x + x_partner) * distinguish + (1 | dyad_id)`.
-#' Supports both factor and numeric distinguish variables (e.g., effect-coded).
+#' (e.g., gender) using the two-intercept approach. Uses [nlme::gls()] with
+#' compound symmetry and group-specific residual variances.
 #'
 #' @param data Data frame in long format (two rows per dyad).
 #' @param y Character. Name of the outcome column.
 #' @param x Character. Name of the actor's predictor column.
 #' @param distinguish Character. Name of the column distinguishing partners
-#'   (e.g., gender). Can be factor or numeric (effect-coded, dummy-coded).
+#'   (e.g., gender). Should be a factor for the two-intercept approach.
 #' @param dyad_id Character. Name of the dyad identifier column. Default `"dyad_id"`.
 #' @param x_partner Character. Name of the partner's predictor column. If `NULL`,
 #'   inferred from `x` by appending `_partner`.
-#' @param use_lmerTest Logical. If `TRUE` (default), use `lmerTest::lmer()` when
-#'   the lmerTest package is available to obtain Satterthwaite p-values.
-#' @param ... Further arguments passed to [lme4::lmer()].
+#' @param ... Further arguments passed to [nlme::gls()].
 #'
-#' @return A fitted \code{lmerMod} object from \code{lme4::lmer}.
+#' @return A fitted \code{gls} object from \code{nlme::gls}.
+#'
+#' @seealso \url{https://randilgarcia.github.io/week-dyad-workshop/Distinguishable.html}
 #'
 #' @export
 #'
@@ -37,7 +37,6 @@ fitAPIMdist <- function(data,
                         distinguish,
                         dyad_id = "dyad_id",
                         x_partner = NULL,
-                        use_lmerTest = TRUE,
                         ...) {
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame.")
@@ -51,8 +50,22 @@ fitAPIMdist <- function(data,
     stop("Required columns not found in `data`: ", paste(miss, collapse = ", "))
   }
 
+  # Ensure distinguish is a factor for varIdent and two-intercept parameterization
+  if (!is.factor(data[[distinguish]])) {
+    data <- as.data.frame(data)
+    data[[distinguish]] <- factor(data[[distinguish]])
+  }
+
   f <- stats::as.formula(paste0(
-    y, " ~ (", x, " + ", x_partner, ") * ", distinguish, " + (1 | ", dyad_id, ")"
+    y, " ~ ", distinguish, " + ", x, ":", distinguish, " + ", x_partner, ":",
+    distinguish, " - 1"
   ))
-  .lmer_fit(formula = f, data = data, use_lmerTest = use_lmerTest, ...)
+  nlme::gls(
+    model = f,
+    data = data,
+    correlation = nlme::corCompSymm(form = stats::as.formula(paste0("~ 1 | ", dyad_id))),
+    weights = nlme::varIdent(form = stats::as.formula(paste0("~ 1 | ", distinguish))),
+    na.action = na.omit,
+    ...
+  )
 }
